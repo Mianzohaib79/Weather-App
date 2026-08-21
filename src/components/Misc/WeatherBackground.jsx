@@ -1,83 +1,131 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useWeather } from '../../context/WeatherContext';
 
 const WeatherBackground = () => {
-  const { weatherCondition } = useWeather();
-  const condition = weatherCondition ? weatherCondition.toLowerCase() : 'clear';
+  const { weatherCondition, weatherData } = useWeather() || {};
 
-  const isRain = condition.includes('rain') || condition.includes('drizzle');
-  const isSnow = condition.includes('snow');
-  const isClouds = condition.includes('cloud') || condition.includes('overcast');
+  const condition = useMemo(() => {
+    return (weatherCondition || weatherData?.weather?.[0]?.main || 'Clear').toLowerCase();
+  }, [weatherCondition, weatherData]);
+
+  // Check Day or Night via API icon ('d' = day, 'n' = night)
+  const icon = weatherData?.weather?.[0]?.icon || '';
+  const isNight = icon.endsWith('n') || (
+    weatherData?.sys?.sunset && weatherData?.dt
+      ? (weatherData.dt > weatherData.sys.sunset || weatherData.dt < weatherData.sys.sunrise)
+      : false
+  );
+
   const isThunder = condition.includes('thunder') || condition.includes('squall');
+  const isRain = (condition.includes('rain') || condition.includes('drizzle')) && !isThunder;
+  const isSnow = condition.includes('snow');
   const isMist = condition.includes('mist') || condition.includes('fog') || condition.includes('haze') || condition.includes('smoke');
-  const isClear = condition.includes('clear') || condition.includes('sun');
+  const isClouds = (condition.includes('cloud') || condition.includes('overcast')) && !isRain && !isThunder && !isSnow && !isMist;
 
   return (
-    <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden transition-all duration-1000">
-      {/* Base Clear Sun Backdrop */}
-      {isClear && (
-        <div className="absolute inset-0 bg-gradient-to-b from-sky-900 via-indigo-950 to-slate-950">
-          <div className="absolute top-12 right-1/4 w-96 h-96 bg-amber-400/20 rounded-full animate-sun-pulse pointer-events-none" />
-          <div className="absolute top-20 right-1/4 w-64 h-64 bg-yellow-300/30 rounded-full blur-3xl pointer-events-none animate-pulse" />
-        </div>
+    <div className="fixed inset-0 w-full h-full pointer-events-none -z-10 overflow-hidden select-none transition-all duration-1000">
+
+      {/* 1. DAY TIME - CLEAR / SUNNY SKY (Vibrant Blue like iOS) */}
+      {!isNight && !isRain && !isThunder && !isSnow && !isMist && (
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-gradient-to-b from-sky-400 via-sky-600 to-indigo-900"
+          >
+            {/* Bright Real Sun Effect */}
+            <div className="absolute top-10 right-1/4 w-80 h-80 bg-amber-200/30 rounded-full blur-3xl animate-pulse pointer-events-none" />
+            <div className="absolute top-16 right-1/4 w-40 h-40 bg-yellow-100 rounded-full shadow-[0_0_80px_rgba(253,224,71,0.9)] pointer-events-none" />
+
+            {/* Soft Ambient Floating Clouds for Day */}
+            {isClouds && (
+              <>
+                <motion.div
+                  animate={{ x: [-50, 50, -50] }}
+                  transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
+                  className="absolute top-12 left-10 w-96 h-36 bg-white/20 rounded-full blur-2xl"
+                />
+                <motion.div
+                  animate={{ x: [50, -50, 50] }}
+                  transition={{ duration: 35, repeat: Infinity, ease: 'easeInOut' }}
+                  className="absolute top-28 right-16 w-[450px] h-48 bg-sky-100/25 rounded-full blur-3xl"
+                />
+              </>
+            )}
+          </motion.div>
+        </AnimatePresence>
       )}
 
-      {/* Cloud Atmospheric Backdrop */}
-      {isClouds && (
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-800 via-slate-900 to-slate-950">
+      {/* 2. NIGHT TIME - CLEAR / CLOUDY SKY */}
+      {isNight && !isRain && !isThunder && !isSnow && !isMist && (
+        <AnimatePresence>
           <motion.div
-            animate={{ x: [-100, 100, -100] }}
-            transition={{ duration: 30, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute top-10 left-10 w-80 h-32 bg-slate-700/20 rounded-full blur-2xl"
-          />
-          <motion.div
-            animate={{ x: [100, -100, 100] }}
-            transition={{ duration: 40, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute top-36 right-12 w-96 h-40 bg-cyan-900/15 rounded-full blur-3xl"
-          />
-          <div className="absolute top-1/4 left-0 right-0 opacity-15 animate-cloud-slow">
-            <svg viewBox="0 0 1000 300" fill="none" className="w-full h-auto text-slate-300">
-              <path
-                d="M 150,150 Q 200,80 300,120 Q 380,50 480,110 Q 560,70 650,130 Q 750,90 850,160 Z"
-                fill="currentColor"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900"
+          >
+            {/* Glowing Moon Effect */}
+            <div className="absolute top-12 right-1/4 w-48 h-48 bg-slate-100/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute top-16 right-1/4 w-28 h-28 bg-slate-100 rounded-full shadow-[0_0_50px_rgba(241,245,249,0.6)] pointer-events-none" />
+
+            {/* Soft Night Clouds */}
+            {isClouds && (
+              <motion.div
+                animate={{ x: [-40, 40, -40] }}
+                transition={{ duration: 30, repeat: Infinity, ease: 'easeInOut' }}
+                className="absolute top-20 left-10 w-96 h-40 bg-slate-800/30 rounded-full blur-2xl"
               />
-            </svg>
-          </div>
-        </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
       )}
 
-      {/* Rain Backdrop */}
+      {/* 3. RAIN BACKDROP */}
       {isRain && (
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-blue-950 to-slate-950">
-          {Array.from({ length: 45 }).map((_, i) => (
+          <div className="absolute top-0 left-0 right-0 h-64 bg-slate-800/40 blur-3xl" />
+          {Array.from({ length: 50 }).map((_, i) => (
             <div
               key={i}
-              className="absolute w-0.5 bg-gradient-to-b from-transparent via-cyan-300/60 to-blue-400 rounded-full animate-rain"
+              className="absolute w-0.5 bg-gradient-to-b from-transparent via-cyan-300/70 to-blue-400 rounded-full animate-rain"
               style={{
-                left: `${(i * 2.2) % 100}%`,
+                left: `${(i * 2) % 100}%`,
                 height: `${25 + (i % 5) * 15}px`,
-                animationDelay: `${(i * 0.15) % 2.5}s`,
-                animationDuration: `${0.8 + (i % 3) * 0.3}s`,
+                animationDelay: `${(i * 0.12) % 2}s`,
+                animationDuration: `${0.7 + (i % 3) * 0.25}s`,
               }}
             />
           ))}
         </div>
       )}
 
-      {/* Snow Backdrop */}
+      {/* 4. THUNDERSTORM BACKDROP */}
+      {isThunder && (
+        <div className="absolute inset-0 bg-gradient-to-b from-zinc-950 via-slate-900 to-slate-950">
+          <motion.div
+            animate={{ opacity: [0, 0.6, 0, 0.9, 0] }}
+            transition={{ duration: 3.5, repeat: Infinity, repeatDelay: 2.5 }}
+            className="absolute inset-0 bg-cyan-100/15 pointer-events-none"
+          />
+        </div>
+      )}
+
+      {/* 5. SNOW BACKDROP */}
       {isSnow && (
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-blue-950/80 to-slate-950">
-          {Array.from({ length: 35 }).map((_, i) => (
+          {Array.from({ length: 40 }).map((_, i) => (
             <div
               key={i}
-              className="absolute bg-white/70 rounded-full animate-snow"
+              className="absolute bg-white/80 rounded-full animate-snow"
               style={{
-                left: `${(i * 2.8) % 100}%`,
+                left: `${(i * 2.5) % 100}%`,
                 width: `${4 + (i % 3) * 3}px`,
                 height: `${4 + (i % 3) * 3}px`,
-                animationDelay: `${(i * 0.4) % 5}s`,
-                animationDuration: `${4 + (i % 4) * 2}s`,
+                animationDelay: `${(i * 0.3) % 4}s`,
+                animationDuration: `${3.5 + (i % 4) * 2}s`,
                 filter: 'blur(1px)',
               }}
             />
@@ -85,21 +133,10 @@ const WeatherBackground = () => {
         </div>
       )}
 
-      {/* Thunderstorm Backdrop */}
-      {isThunder && (
-        <div className="absolute inset-0 bg-gradient-to-b from-zinc-950 via-slate-900 to-slate-950">
-          <motion.div
-            animate={{ opacity: [0, 0.4, 0, 0.8, 0] }}
-            transition={{ duration: 4, repeat: Infinity, repeatDelay: 3 }}
-            className="absolute inset-0 bg-cyan-100/10 pointer-events-none"
-          />
-        </div>
-      )}
-
-      {/* Mist / Fog / Haze Backdrop */}
+      {/* 6. MIST / FOG BACKDROP */}
       {isMist && (
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-800/80 to-slate-950">
-          <div className="absolute inset-0 bg-slate-400/5 blur-3xl pointer-events-none animate-pulse" />
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-800/90 to-slate-950">
+          <div className="absolute inset-0 bg-slate-400/10 blur-3xl pointer-events-none animate-pulse" />
         </div>
       )}
     </div>

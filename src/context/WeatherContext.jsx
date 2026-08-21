@@ -10,11 +10,11 @@ import {
 
 const WeatherContext = createContext();
 
-// Default fallback city (Aapki required city)
-const DEFAULT_CITY = 'Faisalabad';
+// Exact location fallback (Country Code added for precision)
+const DEFAULT_CITY = 'Faisalabad,PK';
 
 export const WeatherProvider = ({ children }) => {
-  const [currentCity, setCurrentCity] = useState(DEFAULT_CITY);
+  const [currentCity, setCurrentCity] = useState('Faisalabad');
   const [weatherData, setWeatherData] = useState(null);
   const [forecastData, setForecastData] = useState(null);
   const [weatherCondition, setWeatherCondition] = useState('Clouds');
@@ -35,15 +35,21 @@ export const WeatherProvider = ({ children }) => {
     getUserLocationWeather();
   };
 
-  // Fetch weather by city name
+  // Fetch weather by city name (Auto-appends country code if plain city)
   const fetchWeather = async (city) => {
-    const targetCity = city && city.trim() ? city.trim() : DEFAULT_CITY;
+    let targetCity = city && city.trim() ? city.trim() : DEFAULT_CITY;
+
+    // Ensure Faisalabad targets PK specifically if no country code provided
+    if (targetCity.toLowerCase() === 'faisalabad') {
+      targetCity = 'Faisalabad,PK';
+    }
+
     setLoading(true);
     setError(null);
     try {
       const data = await getCurrentWeather(targetCity);
       setWeatherData(data);
-      setCurrentCity(data.name || targetCity);
+      setCurrentCity(data.name || 'Faisalabad');
 
       const condition = data.weather?.[0]?.main || 'Clear';
       setWeatherCondition(condition);
@@ -78,7 +84,6 @@ export const WeatherProvider = ({ children }) => {
       updateTimestamp();
     } catch (err) {
       console.warn('Weather fetch by coordinates failed, fallback to default city:', err.message);
-      // Fallback to Faisalabad if coordinate fetch fails
       await fetchWeather(DEFAULT_CITY);
     } finally {
       setLoading(false);
@@ -108,11 +113,11 @@ export const WeatherProvider = ({ children }) => {
         setIsGeoLoading(false);
         fetchWeather(DEFAULT_CITY);
       },
-      { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
     );
   };
 
-  // Refresh current data (either by coords or by city name)
+  // Force Live Refresh Data
   const refreshWeatherData = () => {
     if (coordsRef.current) {
       fetchWeatherByCoords(coordsRef.current.lat, coordsRef.current.lon);
@@ -126,11 +131,11 @@ export const WeatherProvider = ({ children }) => {
     getUserLocationWeather();
   }, []);
 
-  // Real-Time 5-Minute Auto Refresh Interval
+  // Real-Time 3-Minute Auto Refresh Interval
   useEffect(() => {
     const interval = setInterval(() => {
       refreshWeatherData();
-    }, 5 * 60 * 1000); // 5 minutes
+    }, 3 * 60 * 1000); // 3 minutes for live updates
 
     return () => clearInterval(interval);
   }, [currentCity]);

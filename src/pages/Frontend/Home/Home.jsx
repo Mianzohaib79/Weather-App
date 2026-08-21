@@ -25,6 +25,10 @@ const Home = () => {
   const popularCities = ['London', 'Tokyo', 'New York', 'Paris', 'Dubai', 'Sydney'];
   const hasApiKey = Boolean(import.meta.env.VITE_OPENWEATHER_API_KEY && import.meta.env.VITE_OPENWEATHER_API_KEY !== 'your_openweather_api_key_here');
 
+  // Day / Night Auto-Detection via API icon
+  const icon = weatherData?.weather?.[0]?.icon || '';
+  const isNight = icon.endsWith('n');
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
       {/* Full-Screen Weather Loader for Geolocation / Atmospheric Search */}
@@ -38,16 +42,24 @@ const Home = () => {
         transition={{ duration: 0.5 }}
         className="text-center space-y-4"
       >
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-semibold shadow-sm">
-          <Sparkles className="w-3.5 h-3.5" />
+        {/* Dynamic Badge */}
+        <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold shadow-md backdrop-blur-md transition-colors ${isNight
+            ? 'bg-cyan-500/10 border border-cyan-500/20 text-cyan-300'
+            : 'bg-slate-900/40 border border-slate-700/50 text-white'
+          }`}>
+          <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
           <span>100% Live Location & Real-Time Weather Data</span>
         </div>
 
-        <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">
-          Live <span className="bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent">Location & Animated</span> Weather
+        {/* Dynamic Heading with Drop Shadows for High Contrast */}
+        <h1 className={`text-4xl md:text-5xl font-black tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)] transition-colors ${isNight ? 'text-white' : 'text-slate-950'
+          }`}>
+          Live <span className={isNight ? 'text-cyan-400' : 'text-sky-800 font-extrabold'}>Location & Animated</span> Weather
         </h1>
 
-        <p className="text-slate-400 text-sm max-w-xl mx-auto">
+        {/* Dynamic Subtitle */}
+        <p className={`text-sm md:text-base max-w-xl mx-auto font-medium drop-shadow-[0_1px_6px_rgba(0,0,0,0.7)] transition-colors ${isNight ? 'text-slate-300' : 'text-slate-900'
+          }`}>
           Automatically detects your current latitude & longitude via browser GPS or allows manual search for any city worldwide.
         </p>
 
@@ -65,12 +77,12 @@ const Home = () => {
           <button
             onClick={refreshWeatherData}
             disabled={loading}
-            className="px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer"
-            title="Auto-refreshes every 5 mins"
+            className="px-3.5 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-100 border border-slate-700 text-xs font-semibold shadow-md transition-all flex items-center gap-1.5 cursor-pointer backdrop-blur-md"
+            title="Auto-refreshes every 3 mins"
           >
             <RefreshCw className={`w-3.5 h-3.5 text-cyan-400 ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh Live Data</span>
-            {lastUpdated && <span className="text-[10px] text-slate-400 ml-1">({lastUpdated})</span>}
+            {lastUpdated && <span className="text-[10px] text-slate-300 ml-1">({lastUpdated})</span>}
           </button>
 
           <div className="flex items-center gap-1.5">
@@ -78,7 +90,7 @@ const Home = () => {
               <button
                 key={city}
                 onClick={() => fetchWeather(city)}
-                className="hidden sm:inline-block px-3 py-1.5 rounded-lg bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 hover:text-cyan-400 transition-all cursor-pointer"
+                className="hidden sm:inline-block px-3 py-1.5 rounded-lg bg-slate-900/70 hover:bg-slate-800 border border-slate-700 text-xs text-slate-200 hover:text-cyan-400 transition-all cursor-pointer shadow-md backdrop-blur-md"
               >
                 {city}
               </button>
@@ -148,13 +160,15 @@ const Home = () => {
           className="space-y-4"
         >
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+            <h3 className={`text-xl font-bold flex items-center gap-2 drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)] ${isNight ? 'text-white' : 'text-slate-950'
+              }`}>
               <Calendar className="w-5 h-5 text-cyan-400" />
               5-Day Weather Forecast
             </h3>
             <Link
               to="/weather-details"
-              className="text-xs font-medium text-cyan-400 hover:underline flex items-center gap-1"
+              className={`text-xs font-semibold hover:underline flex items-center gap-1 ${isNight ? 'text-cyan-300' : 'text-slate-900'
+                }`}
             >
               Detailed Breakdown &rarr;
             </Link>
@@ -169,7 +183,7 @@ const Home = () => {
               return (
                 <div
                   key={index}
-                  className="p-4 rounded-2xl bg-slate-900/50 backdrop-blur-md border border-slate-800/80 text-center hover:border-cyan-500/40 transition-all group"
+                  className="p-4 rounded-2xl bg-slate-900/60 backdrop-blur-md border border-slate-800/80 text-center hover:border-cyan-500/40 transition-all group shadow-md"
                 >
                   <p className="text-xs font-bold text-slate-300 group-hover:text-cyan-400 transition-colors">
                     {dayName}
