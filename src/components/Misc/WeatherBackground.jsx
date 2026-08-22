@@ -1,8 +1,16 @@
 import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 import { useWeather } from '../../context/WeatherContext';
 
 const WeatherBackground = () => {
+  const location = useLocation();
+
+  // Hide background exclusively on Home page
+  if (location.pathname === '/' || location.pathname === '') {
+    return null;
+  }
+
   const { weatherCondition, weatherData } = useWeather() || {};
 
   const condition = useMemo(() => {
@@ -26,7 +34,7 @@ const WeatherBackground = () => {
   return (
     <div className="fixed inset-0 w-full h-full pointer-events-none -z-10 overflow-hidden select-none transition-all duration-1000">
 
-      {/* 1. DAY TIME - CLEAR / SUNNY SKY (Vibrant Blue like iOS) */}
+      {/* 1. DAY TIME - CLEAR / SUNNY SKY */}
       {!isNight && !isRain && !isThunder && !isSnow && !isMist && (
         <AnimatePresence>
           <motion.div
@@ -35,11 +43,9 @@ const WeatherBackground = () => {
             exit={{ opacity: 0 }}
             className="absolute inset-0 bg-gradient-to-b from-sky-400 via-sky-600 to-indigo-900"
           >
-            {/* Bright Real Sun Effect */}
             <div className="absolute top-10 right-1/4 w-80 h-80 bg-amber-200/30 rounded-full blur-3xl animate-pulse pointer-events-none" />
             <div className="absolute top-21 right-1/9 w-40 h-40 bg-yellow-100 rounded-full shadow-[0_0_80px_rgba(253,224,71,0.9)] pointer-events-none" />
 
-            {/* Soft Ambient Floating Clouds for Day */}
             {isClouds && (
               <>
                 <motion.div
@@ -67,11 +73,9 @@ const WeatherBackground = () => {
             exit={{ opacity: 0 }}
             className="absolute inset-0 bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900"
           >
-            {/* Glowing Moon Effect */}
             <div className="absolute top-12 right-1/4 w-48 h-48 bg-slate-100/10 rounded-full blur-2xl pointer-events-none" />
             <div className="absolute top-21 right-1/9 w-28 h-28 bg-slate-100 rounded-full shadow-[0_0_50px_rgba(241,245,249,0.6)] pointer-events-none" />
 
-            {/* Soft Night Clouds */}
             {isClouds && (
               <motion.div
                 animate={{ x: [-40, 40, -40] }}

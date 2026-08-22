@@ -48,7 +48,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-md bg-slate-900/80 border-b border-slate-800/80 px-4 lg:px-8 py-3.5 transition-all">
+    <header className="sticky top-0 z-50 backdrop-blur-md bg-transparent border-b border-white/10 px-4 lg:px-8 py-3.5 transition-all">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
         {/* Brand Logo */}
         <Link to="/" className="flex items-center gap-2.5 group">
@@ -70,7 +70,7 @@ const Navbar = () => {
               placeholder="Search any city..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full bg-slate-800/70 text-slate-100 placeholder-slate-400 pl-10 pr-4 py-2 rounded-full border border-slate-700/60 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 transition-all text-sm shadow-inner"
+              className="w-full bg-slate-900/40 text-slate-100 placeholder-slate-400 pl-10 pr-4 py-2 rounded-full border border-slate-700/50 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 transition-all text-sm shadow-inner backdrop-blur-sm"
             />
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 group-focus-within:text-cyan-400 transition-colors" />
           </form>
@@ -80,7 +80,7 @@ const Navbar = () => {
             onClick={handleLocationClick}
             disabled={isGeoLoading}
             title="Use current GPS location"
-            className="p-2.5 rounded-full bg-slate-800/80 hover:bg-cyan-500/20 border border-slate-700 hover:border-cyan-500/50 text-cyan-400 hover:text-cyan-300 transition-all shadow-sm flex items-center justify-center shrink-0 cursor-pointer"
+            className="p-2.5 rounded-full bg-slate-900/40 hover:bg-cyan-500/20 border border-slate-700/50 hover:border-cyan-500/50 text-cyan-400 hover:text-cyan-300 transition-all shadow-sm flex items-center justify-center shrink-0 cursor-pointer backdrop-blur-sm"
           >
             <Navigation className={`w-4 h-4 ${isGeoLoading ? 'animate-spin' : ''}`} />
           </button>
@@ -90,7 +90,7 @@ const Navbar = () => {
         <nav className="flex items-center gap-3">
           <Link
             to="/favorites"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
           >
             <Heart className="w-4 h-4 text-rose-400" />
             <span className="hidden sm:inline">Favorites</span>
@@ -100,14 +100,14 @@ const Navbar = () => {
             <>
               <Link
                 to="/dashboard"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
               >
                 <LayoutDashboard className="w-4 h-4 text-cyan-400" />
                 <span className="hidden sm:inline">Dashboard</span>
               </Link>
               <button
                 onClick={handleLogoutClick}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 transition-all cursor-pointer backdrop-blur-sm"
               >
                 <LogOut className="w-4 h-4" />
                 <span className="hidden sm:inline">Logout</span>

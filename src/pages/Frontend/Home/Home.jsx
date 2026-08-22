@@ -34,12 +34,20 @@ const Home = () => {
     <div className="relative min-h-screen w-full overflow-hidden bg-slate-950 text-white">
       {/* 1. Animated Cloud Background Shader Layer */}
       <CloudShader
-        className="fixed inset-0 h-full w-full -z-0 opacity-80 pointer-events-none"
+        className="fixed inset-0 h-full w-full -z-0 pointer-events-none"
         speed={1}
         count={5}
         skyTopColor={isNight ? "#020617" : "#0f172a"}
         skyBottomColor={isNight ? "#0f172a" : "#1e3a8a"}
         cloudColor="#ffffff"
+      />
+
+      {/* Anti-Banding Gradient Blur Overlay (Eliminates Horizontal Lines Behind Shader) */}
+      <div
+        className="fixed inset-0 pointer-events-none z-0 backdrop-blur-[1px]"
+        style={{
+          background: 'radial-gradient(circle at center, rgba(15, 23, 42, 0.15) 0%, rgba(2, 6, 23, 0.55) 100%)'
+        }}
       />
 
       {/* 2. Main Weather App Content Layer */}
