@@ -37,7 +37,7 @@ const WeatherBackground = () => {
           >
             {/* Bright Real Sun Effect */}
             <div className="absolute top-10 right-1/4 w-80 h-80 bg-amber-200/30 rounded-full blur-3xl animate-pulse pointer-events-none" />
-            <div className="absolute top-16 right-1/4 w-40 h-40 bg-yellow-100 rounded-full shadow-[0_0_80px_rgba(253,224,71,0.9)] pointer-events-none" />
+            <div className="absolute top-21 right-1/9 w-40 h-40 bg-yellow-100 rounded-full shadow-[0_0_80px_rgba(253,224,71,0.9)] pointer-events-none" />
 
             {/* Soft Ambient Floating Clouds for Day */}
             {isClouds && (
@@ -69,7 +69,7 @@ const WeatherBackground = () => {
           >
             {/* Glowing Moon Effect */}
             <div className="absolute top-12 right-1/4 w-48 h-48 bg-slate-100/10 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute top-16 right-1/4 w-28 h-28 bg-slate-100 rounded-full shadow-[0_0_50px_rgba(241,245,249,0.6)] pointer-events-none" />
+            <div className="absolute top-21 right-1/9 w-28 h-28 bg-slate-100 rounded-full shadow-[0_0_50px_rgba(241,245,249,0.6)] pointer-events-none" />
 
             {/* Soft Night Clouds */}
             {isClouds && (

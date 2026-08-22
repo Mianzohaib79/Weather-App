@@ -43,13 +43,13 @@ const Home = () => {
         className="text-center space-y-4"
       >
         {/* Dynamic Badge */}
-        <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold shadow-md backdrop-blur-md transition-colors ${isNight
+        {/* <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold shadow-md backdrop-blur-md transition-colors ${isNight
             ? 'bg-cyan-500/10 border border-cyan-500/20 text-cyan-300'
             : 'bg-slate-900/40 border border-slate-700/50 text-white'
           }`}>
           <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
           <span>100% Live Location & Real-Time Weather Data</span>
-        </div>
+        </div> */}
 
         {/* Dynamic Heading with Drop Shadows for High Contrast */}
         <h1 className={`text-4xl md:text-5xl font-black tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)] transition-colors ${isNight ? 'text-white' : 'text-slate-950'
@@ -63,39 +63,47 @@ const Home = () => {
           Automatically detects your current latitude & longitude via browser GPS or allows manual search for any city worldwide.
         </p>
 
-        {/* Location Detection & Refresh Controls */}
-        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-          <button
-            onClick={getUserLocationWeather}
-            disabled={isGeoLoading}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-xs shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-2 cursor-pointer"
-          >
-            <Navigation className={`w-4 h-4 ${isGeoLoading ? 'animate-spin' : ''}`} />
-            <span>{isGeoLoading ? 'Detecting Location...' : 'Use My GPS Location'}</span>
-          </button>
+        {/* Location Detection & Refresh Controls + Responsive Quick Cities */}
+        <div className="flex flex-col items-center gap-3 pt-2">
 
-          <button
-            onClick={refreshWeatherData}
-            disabled={loading}
-            className="px-3.5 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-100 border border-slate-700 text-xs font-semibold shadow-md transition-all flex items-center gap-1.5 cursor-pointer backdrop-blur-md"
-            title="Auto-refreshes every 3 mins"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 text-cyan-400 ${loading ? 'animate-spin' : ''}`} />
-            <span>Refresh Live Data</span>
-            {lastUpdated && <span className="text-[10px] text-slate-300 ml-1">({lastUpdated})</span>}
-          </button>
+          {/* Top Buttons: GPS Location & Live Refresh */}
+          <div className="flex flex-wrap items-center justify-center gap-2.5">
+            <button
+              onClick={getUserLocationWeather}
+              disabled={isGeoLoading}
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-xs shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-2 cursor-pointer"
+            >
+              <Navigation className={`w-4 h-4 ${isGeoLoading ? 'animate-spin' : ''}`} />
+              <span>{isGeoLoading ? 'Detecting Location...' : 'Use My GPS Location'}</span>
+            </button>
 
-          <div className="flex items-center gap-1.5">
-            {popularCities.map((city) => (
-              <button
-                key={city}
-                onClick={() => fetchWeather(city)}
-                className="hidden sm:inline-block px-3 py-1.5 rounded-lg bg-slate-900/70 hover:bg-slate-800 border border-slate-700 text-xs text-slate-200 hover:text-cyan-400 transition-all cursor-pointer shadow-md backdrop-blur-md"
-              >
-                {city}
-              </button>
-            ))}
+            <button
+              onClick={refreshWeatherData}
+              disabled={loading}
+              className="px-3.5 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-100 border border-slate-700 text-xs font-semibold shadow-md transition-all flex items-center gap-1.5 cursor-pointer backdrop-blur-md"
+              title="Auto-refreshes every 3 mins"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 text-cyan-400 ${loading ? 'animate-spin' : ''}`} />
+              <span>Refresh Live Data</span>
+              {lastUpdated && <span className="text-[10px] text-slate-300 ml-1">({lastUpdated})</span>}
+            </button>
           </div>
+
+          {/* Popular Cities Bar - Fully Visible & Scrollable on Mobile */}
+          <div className="w-full max-w-md overflow-x-auto no-scrollbar py-1 scrollbar-none">
+            <div className="flex items-center justify-center sm:justify-center gap-1.5 min-w-max px-2">
+              {popularCities.map((city) => (
+                <button
+                  key={city}
+                  onClick={() => fetchWeather(city)}
+                  className="px-3 py-1.5 rounded-lg bg-slate-900/70 hover:bg-slate-800 border border-slate-700/80 text-xs text-slate-200 hover:text-cyan-400 transition-all cursor-pointer shadow-sm backdrop-blur-md shrink-0"
+                >
+                  {city}
+                </button>
+              ))}
+            </div>
+          </div>
+
         </div>
 
         {/* 401 Key Activation Warning */}
