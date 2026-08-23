@@ -1,12 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Calendar, Navigation, AlertTriangle, AlertCircle, RefreshCw } from 'lucide-react';
+import { Sparkles, Calendar, Navigation, AlertTriangle, AlertCircle, RefreshCw, Globe as GlobeIcon } from 'lucide-react';
 import { useWeather } from '../../../context/WeatherContext';
 import WeatherCard from '../../../components/ui/WeatherCard';
 import HourlyForecast from '../../../components/Misc/HourlyForecast';
 import WeatherLoader from '../../../components/Loader/WeatherLoader';
 import { Link } from 'react-router-dom';
 import { CloudShader } from '../../../components/ui/cloud-shader';
+import { GlobeDemo } from "../../../components/globe-demo";
 
 const Home = () => {
   const {
@@ -42,7 +43,7 @@ const Home = () => {
         cloudColor="#ffffff"
       />
 
-      {/* Anti-Banding Gradient Blur Overlay (Eliminates Horizontal Lines Behind Shader) */}
+      {/* Anti-Banding Gradient Blur Overlay */}
       <div
         className="fixed inset-0 pointer-events-none z-0 backdrop-blur-[1px]"
         style={{
@@ -52,7 +53,7 @@ const Home = () => {
 
       {/* 2. Main Weather App Content Layer */}
       <div className="relative z-10 max-w-6xl mx-auto px-4 py-8 space-y-8">
-        {/* Full-Screen Weather Loader for Geolocation / Atmospheric Search */}
+        {/* Full-Screen Weather Loader */}
         {isGeoLoading && <WeatherLoader message="Scanning GPS location & radar coordinates..." />}
         {loading && !weatherData && <WeatherLoader message="Fetching live atmospheric data..." />}
 
@@ -63,20 +64,16 @@ const Home = () => {
           transition={{ duration: 0.5 }}
           className="text-center space-y-4"
         >
-          {/* Dynamic Heading with Drop Shadows for High Contrast */}
           <h1 className={`text-4xl md:text-5xl font-black tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)] transition-colors ${isNight ? 'text-white' : 'text-slate-100'}`}>
             Live <span className={isNight ? 'text-cyan-400' : 'text-sky-400 font-extrabold'}>Location & Animated</span> Weather
           </h1>
 
-          {/* Dynamic Subtitle */}
           <p className={`text-sm md:text-base max-w-xl mx-auto font-medium drop-shadow-[0_1px_6px_rgba(0,0,0,0.7)] transition-colors ${isNight ? 'text-slate-300' : 'text-slate-200'}`}>
             Automatically detects your current latitude & longitude via browser GPS or allows manual search for any city worldwide.
           </p>
 
-          {/* Location Detection & Refresh Controls + Responsive Quick Cities */}
+          {/* Location Controls & Quick Cities */}
           <div className="flex flex-col items-center gap-3 pt-2">
-
-            {/* Top Buttons: GPS Location & Live Refresh */}
             <div className="flex flex-wrap items-center justify-center gap-2.5">
               <button
                 onClick={getUserLocationWeather}
@@ -99,7 +96,7 @@ const Home = () => {
               </button>
             </div>
 
-            {/* Popular Cities Bar - Fully Visible & Scrollable on Mobile */}
+            {/* Popular Cities */}
             <div className="w-full max-w-md overflow-x-auto no-scrollbar py-1 scrollbar-none">
               <div className="flex items-center justify-center sm:justify-center gap-1.5 min-w-max px-2">
                 {popularCities.map((city) => (
@@ -113,10 +110,9 @@ const Home = () => {
                 ))}
               </div>
             </div>
-
           </div>
 
-          {/* 401 Key Activation Warning */}
+          {/* API Key Warnings */}
           {isApiKeyInvalid && (
             <div className="max-w-2xl mx-auto p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-left">
               <div className="flex items-start gap-3">
@@ -136,13 +132,12 @@ const Home = () => {
             </div>
           )}
 
-          {/* Missing API Key Warning */}
           {!hasApiKey && !isApiKeyInvalid && (
             <div className="max-w-2xl mx-auto p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-start gap-3 text-left">
               <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
               <div>
                 <span className="font-bold block text-amber-200">OpenWeather API Key Setup:</span>
-                Replace <code className="bg-amber-950/60 px-1.5 py-0.5 rounded text-amber-300">your_openweather_api_key_here</code> in your <code className="bg-amber-950/60 px-1.5 py-0.5 rounded text-amber-300">.env</code> file with your real key from <a href="https://openweathermap.org/api" target="_blank" rel="noreferrer" className="underline font-semibold hover:text-white">OpenWeatherMap</a> to fetch live worldwide API feeds.
+                Replace <code className="bg-amber-950/60 px-1.5 py-0.5 rounded text-amber-300">your_openweather_api_key_here</code> in your <code className="bg-amber-950/60 px-1.5 py-0.5 rounded text-amber-300">.env</code> file with your real key.
               </div>
             </div>
           )}
@@ -168,6 +163,25 @@ const Home = () => {
             <HourlyForecast data={forecastData} />
           </>
         )}
+
+        {/* 3D Interactive Globe Section */}
+        <motion.section
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="space-y-4"
+        >
+          <div className="flex items-center justify-between">
+            <h3 className={`text-xl font-bold flex items-center gap-2 drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)] ${isNight ? 'text-white' : 'text-slate-100'}`}>
+              <GlobeIcon className="w-5 h-5 text-cyan-400" />
+              Interactive World Globe
+            </h3>
+          </div>
+
+          <div className="w-full h-[500px] rounded-3xl overflow-hidden bg-slate-900/50 border border-slate-800 backdrop-blur-md relative">
+            <GlobeDemo />
+          </div>
+        </motion.section>
 
         {/* 5-Day Forecast Grid */}
         {forecastData?.list && forecastData.list.length > 0 && (
