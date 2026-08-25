@@ -6,9 +6,8 @@ import WeatherCard from '../../../components/ui/WeatherCard';
 import HourlyForecast from '../../../components/Misc/HourlyForecast';
 import WeatherLoader from '../../../components/Loader/WeatherLoader';
 import { Link } from 'react-router-dom';
-import { CloudShader } from '../../../components/ui/cloud-shader';
 import { GlobeDemo } from "../../../components/globe-demo";
-import { WeatherRainOverlay } from "../../../components/WeatherRainOverlay";
+// import { WeatherRainOverlay } from "../../../components/WeatherRainOverlay";
 import { SunMoonArc } from "../../../components/SunMoonArc";
 import { WindCompass } from "../../../components/WindCompass";
 import { WeatherMetricsGrid } from "../../../components/WeatherMetricsGrid";
@@ -35,39 +34,18 @@ const Home = () => {
   const icon = weatherData?.weather?.[0]?.icon || '';
   const isNight = icon.endsWith('n');
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-slate-950 text-white">
+    <div className="relative min-h-screen w-full overflow-hidden text-white">
 
-      {/* 1. Animated Cloud Background Shader Layer */}
-      <CloudShader
-        className="fixed inset-0 h-full w-full -z-0 pointer-events-none"
-        speed={1}
-        count={5}
-        skyTopColor={isNight ? "#020617" : "#0f172a"}
-        skyBottomColor={isNight ? "#0f172a" : "#1e293b"}
-        weatherCondition={
-          weatherData?.weather?.[0]?.main ||
-          weatherData?.weather?.[0]?.description ||
-          "Clear"
-        }
-      />
-      <WeatherRainOverlay
+      {/* <WeatherRainOverlay
         speedMultiplier={1}
         weatherCondition={
           weatherData?.weather?.[0]?.main ||
           weatherData?.weather?.[0]?.description ||
           "Clear"
         }
-      />
+      /> */}
 
-      {/* Anti-Banding Gradient Blur Overlay */}
-      <div
-        className="fixed inset-0 pointer-events-none z-0 backdrop-blur-[1px]"
-        style={{
-          background: 'radial-gradient(circle at center, rgba(15, 23, 42, 0.15) 0%, rgba(2, 6, 23, 0.55) 100%)'
-        }}
-      />
-
-      {/* 2. Main Weather App Content Layer */}
+      {/* Main Weather App Content Layer */}
       <div className="relative z-10 max-w-6xl mx-auto px-4 py-8 space-y-8">
         {/* Full-Screen Weather Loader */}
         {isGeoLoading && <WeatherLoader message="Scanning GPS location & radar coordinates..." />}
@@ -83,10 +61,6 @@ const Home = () => {
           <h1 className={`text-4xl md:text-5xl font-black tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)] transition-colors ${isNight ? 'text-white' : 'text-slate-100'}`}>
             Live <span className={isNight ? 'text-cyan-400' : 'text-sky-400 font-extrabold'}>Location & Animated</span> Weather
           </h1>
-
-          {/* <p className={`text-sm md:text-base max-w-xl mx-auto font-medium drop-shadow-[0_1px_6px_rgba(0,0,0,0.7)] transition-colors ${isNight ? 'text-slate-300' : 'text-slate-200'}`}>
-            Automatically detects your current latitude & longitude via browser GPS or allows manual search for any city worldwide.
-          </p> */}
 
           {/* Location Controls & Quick Cities */}
           <div className="flex flex-col items-center gap-3 pt-2">

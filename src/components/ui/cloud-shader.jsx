@@ -63,7 +63,6 @@ float billow(vec2 p) {
 
 float cloudDensity(vec2 p, vec2 c, vec2 r, float seed, float t) {
   vec2 q = p - c;
-
   float ry = q.y > 0.0 ? r.y : r.y * 0.42;
   float env = 1.0 - length(vec2(q.x / r.x, q.y / ry));
   if (env < -0.35) return 0.0;
@@ -90,7 +89,6 @@ vec3 shadeCloud(vec3 color, vec3 sky, vec2 p, vec2 c, vec2 r, float seed, float 
   vec3 cloudCol = mix(lit, shadow, occl * 0.85);
 
   float alpha = smoothstep(0.02, 0.38, d);
-
   float rim = smoothstep(0.02, 0.14, d) * (1.0 - smoothstep(0.14, 0.40, d));
   cloudCol += rim * 0.10;
 
@@ -134,14 +132,12 @@ void main() {
   if (u_count > 4.5) {
     color = cloudPass(color, sky, p, aspect, t, 0.008, 0.62, 0.73, vec2(0.24, 0.12), 71.3, 0.85);
   }
-
   if (u_count > 3.5) {
     color = cloudPass(color, sky, p, aspect, t, 0.011, 0.33, 0.60, vec2(0.34, 0.16), 17.3, 0.55);
   }
   if (u_count > 2.5) {
     color = cloudPass(color, sky, p, aspect, t, 0.013, 0.80, 0.47, vec2(0.30, 0.15), 29.9, 0.45);
   }
-
   if (u_count > 1.5) {
     color = cloudPass(color, sky, p, aspect, t, 0.016, 0.05, 0.35, vec2(0.46, 0.20), 91.1, 0.15);
   }
@@ -192,26 +188,11 @@ export const CloudShader = ({
   children,
   speed = 1,
   count = 6,
-  cloudColor = "#fbf8f2",
-  skyTopColor = "#0f172a",
-  skyBottomColor = "#1e3a8a",
-  weatherCondition = "Clear",
+  cloudColor = "#ffffff",
+  skyTopColor = "#3a88e9",
+  skyBottomColor = "#7ab4f8",
 }) => {
   const canvasRef = useRef(null);
-
-  // Rainy weather condition check
-  // Rainy weather condition enhanced check
-  const cond = String(weatherCondition || "").toLowerCase();
-  const isRainy =
-    cond.includes("rain") ||
-    cond.includes("drizzle") ||
-    cond.includes("thunderstorm") ||
-    cond.includes("shower");
-
-  // Rainy vs clear background themes
-  const activeTopColor = isRainy ? "#030712" : skyTopColor;
-  const activeBottomColor = isRainy ? "#0b1329" : skyBottomColor;
-  const activeCloudColor = isRainy ? "#1f2937" : cloudColor;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -282,9 +263,9 @@ export const CloudShader = ({
     const draw = (now) => {
       if (!running) return;
       const elapsed = reduceMotion ? 0 : ((now - start) / 1000) * speed;
-      const cloud = parseHex(activeCloudColor);
-      const skyTop = parseHex(activeTopColor);
-      const skyBottom = parseHex(activeBottomColor);
+      const cloud = parseHex(cloudColor);
+      const skyTop = parseHex(skyTopColor);
+      const skyBottom = parseHex(skyBottomColor);
 
       gl.uniform1f(loc.time, elapsed);
       gl.uniform1f(loc.count, Math.min(6, Math.max(1, count)));
@@ -306,7 +287,7 @@ export const CloudShader = ({
       gl.deleteShader(vert);
       gl.deleteShader(frag);
     };
-  }, [weatherCondition, skyTopColor, skyBottomColor, cloudColor, speed, count, activeTopColor, activeBottomColor, activeCloudColor]);
+  }, [skyTopColor, skyBottomColor, cloudColor, speed, count]);
 
   return (
     <div className={cn("relative h-full min-h-80 w-full overflow-hidden", className)}>
