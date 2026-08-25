@@ -18,8 +18,8 @@ export function GlobeDemo() {
         pointLight: "#ffffff",
         arcTime: 1200,
         arcLength: 0.5,
-        rings: 1,
-        maxRings: 3,
+        rings: 6,
+        maxRings: 4,
         autoRotate: true,
         autoRotateSpeed: 1.0,
     };

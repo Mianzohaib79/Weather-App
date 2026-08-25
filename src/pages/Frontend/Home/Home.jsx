@@ -8,6 +8,10 @@ import WeatherLoader from '../../../components/Loader/WeatherLoader';
 import { Link } from 'react-router-dom';
 import { CloudShader } from '../../../components/ui/cloud-shader';
 import { GlobeDemo } from "../../../components/globe-demo";
+import { WeatherRainOverlay } from "../../../components/WeatherRainOverlay";
+import { SunMoonArc } from "../../../components/SunMoonArc";
+import { WindCompass } from "../../../components/WindCompass";
+import { WeatherMetricsGrid } from "../../../components/WeatherMetricsGrid";
 
 const Home = () => {
   const {
@@ -30,17 +34,29 @@ const Home = () => {
   // Day / Night Auto-Detection via API icon
   const icon = weatherData?.weather?.[0]?.icon || '';
   const isNight = icon.endsWith('n');
-
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-slate-950 text-white">
+
       {/* 1. Animated Cloud Background Shader Layer */}
       <CloudShader
         className="fixed inset-0 h-full w-full -z-0 pointer-events-none"
         speed={1}
         count={5}
         skyTopColor={isNight ? "#020617" : "#0f172a"}
-        skyBottomColor={isNight ? "#0f172a" : "#1e3a8a"}
-        cloudColor="#ffffff"
+        skyBottomColor={isNight ? "#0f172a" : "#1e293b"}
+        weatherCondition={
+          weatherData?.weather?.[0]?.main ||
+          weatherData?.weather?.[0]?.description ||
+          "Clear"
+        }
+      />
+      <WeatherRainOverlay
+        speedMultiplier={1}
+        weatherCondition={
+          weatherData?.weather?.[0]?.main ||
+          weatherData?.weather?.[0]?.description ||
+          "Clear"
+        }
       />
 
       {/* Anti-Banding Gradient Blur Overlay */}
@@ -68,9 +84,9 @@ const Home = () => {
             Live <span className={isNight ? 'text-cyan-400' : 'text-sky-400 font-extrabold'}>Location & Animated</span> Weather
           </h1>
 
-          <p className={`text-sm md:text-base max-w-xl mx-auto font-medium drop-shadow-[0_1px_6px_rgba(0,0,0,0.7)] transition-colors ${isNight ? 'text-slate-300' : 'text-slate-200'}`}>
+          {/* <p className={`text-sm md:text-base max-w-xl mx-auto font-medium drop-shadow-[0_1px_6px_rgba(0,0,0,0.7)] transition-colors ${isNight ? 'text-slate-300' : 'text-slate-200'}`}>
             Automatically detects your current latitude & longitude via browser GPS or allows manual search for any city worldwide.
-          </p>
+          </p> */}
 
           {/* Location Controls & Quick Cities */}
           <div className="flex flex-col items-center gap-3 pt-2">
@@ -161,6 +177,17 @@ const Home = () => {
 
             {/* Interactive Hourly Forecast Graph */}
             <HourlyForecast data={forecastData} />
+            <WeatherMetricsGrid weatherData={weatherData} />
+            <SunMoonArc
+              sunrise={weatherData?.sys?.sunrise ? new Date(weatherData.sys.sunrise * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "06:00 AM"}
+              sunset={weatherData?.sys?.sunset ? new Date(weatherData.sys.sunset * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "07:00 PM"}
+              isNight={isNight}
+              progress={65}
+            />
+            <WindCompass
+              windSpeed={weatherData?.wind?.speed || "3.2"}
+              windDegree={weatherData?.wind?.deg || 140}
+            />
           </>
         )}
 

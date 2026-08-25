@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { cn } from "../../lib/utils"; // utils file ka relative path check kar lein
+import { cn } from "../../lib/utils";
 
 const VERT = `
 attribute vec2 a_pos;
@@ -152,181 +152,170 @@ void main() {
 `;
 
 function parseHex(color) {
-    const value = color.trim();
-    if (value.startsWith("#")) {
-        const hex = value.slice(1);
-        if (hex.length === 3) {
-            return [
-                parseInt(hex[0] + hex[0], 16) / 255,
-                parseInt(hex[1] + hex[1], 16) / 255,
-                parseInt(hex[2] + hex[2], 16) / 255,
-            ];
-        }
-        return [
-            parseInt(hex.slice(0, 2), 16) / 255,
-            parseInt(hex.slice(2, 4), 16) / 255,
-            parseInt(hex.slice(4, 6), 16) / 255,
-        ];
+  const value = color.trim();
+  if (value.startsWith("#")) {
+    const hex = value.slice(1);
+    if (hex.length === 3) {
+      return [
+        parseInt(hex[0] + hex[0], 16) / 255,
+        parseInt(hex[1] + hex[1], 16) / 255,
+        parseInt(hex[2] + hex[2], 16) / 255,
+      ];
     }
-    const rgb = value.match(/[\d.]+/g);
-    if (rgb && rgb.length >= 3) {
-        return [Number(rgb[0]) / 255, Number(rgb[1]) / 255, Number(rgb[2]) / 255];
-    }
-    return [0.95, 0.95, 0.95];
+    return [
+      parseInt(hex.slice(0, 2), 16) / 255,
+      parseInt(hex.slice(2, 4), 16) / 255,
+      parseInt(hex.slice(4, 6), 16) / 255,
+    ];
+  }
+  const rgb = value.match(/[\d.]+/g);
+  if (rgb && rgb.length >= 3) {
+    return [Number(rgb[0]) / 255, Number(rgb[1]) / 255, Number(rgb[2]) / 255];
+  }
+  return [0.95, 0.95, 0.95];
 }
 
 function compile(gl, type, source) {
-    const shader = gl.createShader(type);
-    if (!shader) return null;
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        gl.deleteShader(shader);
-        return null;
-    }
-    return shader;
+  const shader = gl.createShader(type);
+  if (!shader) return null;
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    gl.deleteShader(shader);
+    return null;
+  }
+  return shader;
 }
 
 export const CloudShader = ({
-    className,
-    children,
-    speed = 1,
-    count = 6,
-    cloudColor = "#fbf8f2",
-    skyTopColor = "#0f172a",
-    skyBottomColor = "#1e3a8a",
+  className,
+  children,
+  speed = 1,
+  count = 6,
+  cloudColor = "#fbf8f2",
+  skyTopColor = "#0f172a",
+  skyBottomColor = "#1e3a8a",
+  weatherCondition = "Clear",
 }) => {
-    const canvasRef = useRef(null);
-    const paramsRef = useRef({
-        speed,
-        count,
-        cloudColor,
-        skyTopColor,
-        skyBottomColor,
-    });
+  const canvasRef = useRef(null);
 
-    paramsRef.current = {
-        speed,
-        count,
-        cloudColor,
-        skyTopColor,
-        skyBottomColor,
+  // Rainy weather condition check
+  // Rainy weather condition enhanced check
+  const cond = String(weatherCondition || "").toLowerCase();
+  const isRainy =
+    cond.includes("rain") ||
+    cond.includes("drizzle") ||
+    cond.includes("thunderstorm") ||
+    cond.includes("shower");
+
+  // Rainy vs clear background themes
+  const activeTopColor = isRainy ? "#030712" : skyTopColor;
+  const activeBottomColor = isRainy ? "#0b1329" : skyBottomColor;
+  const activeCloudColor = isRainy ? "#1f2937" : cloudColor;
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const gl = canvas.getContext("webgl", {
+      alpha: false,
+      antialias: false,
+      premultipliedAlpha: false,
+    });
+    if (!gl) return;
+
+    const vert = compile(gl, gl.VERTEX_SHADER, VERT);
+    const frag = compile(gl, gl.FRAGMENT_SHADER, FRAG);
+    if (!vert || !frag) return;
+
+    const program = gl.createProgram();
+    if (!program) return;
+    gl.attachShader(program, vert);
+    gl.attachShader(program, frag);
+    gl.bindAttribLocation(program, 0, "a_pos");
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return;
+    gl.useProgram(program);
+
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([-1, -1, 3, -1, -1, 3]),
+      gl.STATIC_DRAW
+    );
+    gl.enableVertexAttribArray(0);
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+    const loc = {
+      res: gl.getUniformLocation(program, "u_res"),
+      time: gl.getUniformLocation(program, "u_time"),
+      count: gl.getUniformLocation(program, "u_count"),
+      cloud: gl.getUniformLocation(program, "u_cloud"),
+      skyTop: gl.getUniformLocation(program, "u_skyTop"),
+      skyBottom: gl.getUniformLocation(program, "u_skyBottom"),
     };
 
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
+    let frame = 0;
+    let running = true;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-        const gl = canvas.getContext("webgl", {
-            alpha: false,
-            antialias: false,
-            premultipliedAlpha: false,
-        });
-        if (!gl) return;
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      const w = Math.max(1, Math.floor(width * dpr));
+      const h = Math.max(1, Math.floor(height * dpr));
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w;
+        canvas.height = h;
+      }
+      gl.viewport(0, 0, w, h);
+      gl.uniform2f(loc.res, w, h);
+    };
 
-        const vert = compile(gl, gl.VERTEX_SHADER, VERT);
-        const frag = compile(gl, gl.FRAGMENT_SHADER, FRAG);
-        if (!vert || !frag) return;
+    const observer = new ResizeObserver(resize);
+    observer.observe(canvas);
+    resize();
 
-        const program = gl.createProgram();
-        if (!program) return;
-        gl.attachShader(program, vert);
-        gl.attachShader(program, frag);
-        gl.bindAttribLocation(program, 0, "a_pos");
-        gl.linkProgram(program);
-        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return;
-        gl.useProgram(program);
+    const start = performance.now();
+    const draw = (now) => {
+      if (!running) return;
+      const elapsed = reduceMotion ? 0 : ((now - start) / 1000) * speed;
+      const cloud = parseHex(activeCloudColor);
+      const skyTop = parseHex(activeTopColor);
+      const skyBottom = parseHex(activeBottomColor);
 
-        const buffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-        gl.bufferData(
-            gl.ARRAY_BUFFER,
-            new Float32Array([-1, -1, 3, -1, -1, 3]),
-            gl.STATIC_DRAW
-        );
-        gl.enableVertexAttribArray(0);
-        gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+      gl.uniform1f(loc.time, elapsed);
+      gl.uniform1f(loc.count, Math.min(6, Math.max(1, count)));
+      gl.uniform3f(loc.cloud, cloud[0], cloud[1], cloud[2]);
+      gl.uniform3f(loc.skyTop, skyTop[0], skyTop[1], skyTop[2]);
+      gl.uniform3f(loc.skyBottom, skyBottom[0], skyBottom[1], skyBottom[2]);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      frame = requestAnimationFrame(draw);
+    };
 
-        const loc = {
-            res: gl.getUniformLocation(program, "u_res"),
-            time: gl.getUniformLocation(program, "u_time"),
-            count: gl.getUniformLocation(program, "u_count"),
-            cloud: gl.getUniformLocation(program, "u_cloud"),
-            skyTop: gl.getUniformLocation(program, "u_skyTop"),
-            skyBottom: gl.getUniformLocation(program, "u_skyBottom"),
-        };
+    frame = requestAnimationFrame(draw);
 
-        let frame = 0;
-        let running = true;
-        const reduceMotion = window.matchMedia(
-            "(prefers-reduced-motion: reduce)"
-        ).matches;
+    return () => {
+      running = false;
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      gl.deleteBuffer(buffer);
+      gl.deleteProgram(program);
+      gl.deleteShader(vert);
+      gl.deleteShader(frag);
+    };
+  }, [weatherCondition, skyTopColor, skyBottomColor, cloudColor, speed, count, activeTopColor, activeBottomColor, activeCloudColor]);
 
-        const resize = () => {
-            const dpr = Math.min(window.devicePixelRatio || 1, 2);
-            const width = canvas.clientWidth;
-            const height = canvas.clientHeight;
-            const w = Math.max(1, Math.floor(width * dpr));
-            const h = Math.max(1, Math.floor(height * dpr));
-            if (canvas.width !== w || canvas.height !== h) {
-                canvas.width = w;
-                canvas.height = h;
-            }
-            gl.viewport(0, 0, w, h);
-            gl.uniform2f(loc.res, w, h);
-        };
-
-        const observer = new ResizeObserver(resize);
-        observer.observe(canvas);
-        resize();
-
-        const start = performance.now();
-        const draw = (now) => {
-            if (!running) return;
-            const p = paramsRef.current;
-            const elapsed = reduceMotion ? 0 : ((now - start) / 1000) * p.speed;
-            const cloud = parseHex(p.cloudColor);
-            const skyTop = parseHex(p.skyTopColor);
-            const skyBottom = parseHex(p.skyBottomColor);
-
-            gl.uniform1f(loc.time, elapsed);
-            gl.uniform1f(loc.count, Math.min(6, Math.max(1, p.count)));
-            gl.uniform3f(loc.cloud, cloud[0], cloud[1], cloud[2]);
-            gl.uniform3f(loc.skyTop, skyTop[0], skyTop[1], skyTop[2]);
-            gl.uniform3f(loc.skyBottom, skyBottom[0], skyBottom[1], skyBottom[2]);
-            gl.drawArrays(gl.TRIANGLES, 0, 3);
-            frame = requestAnimationFrame(draw);
-        };
-
-        frame = requestAnimationFrame(draw);
-
-        return () => {
-            running = false;
-            cancelAnimationFrame(frame);
-            observer.disconnect();
-            gl.deleteBuffer(buffer);
-            gl.deleteProgram(program);
-            gl.deleteShader(vert);
-            gl.deleteShader(frag);
-        };
-    }, []);
-
-    return (
-        <div
-            className={cn(
-                "relative h-full min-h-80 w-full overflow-hidden",
-                className
-            )}
-        >
-            <canvas
-                ref={canvasRef}
-                className="pointer-events-none absolute inset-0 h-full w-full"
-            />
-            {children ? (
-                <div className="relative z-10 flex h-full w-full items-center justify-center">
-                    {children}
-                </div>
-            ) : null}
+  return (
+    <div className={cn("relative h-full min-h-80 w-full overflow-hidden", className)}>
+      <canvas ref={canvasRef} className="pointer-events-none absolute inset-0 h-full w-full" />
+      {children ? (
+        <div className="relative z-10 flex h-full w-full items-center justify-center">
+          {children}
         </div>
-    );
+      ) : null}
+    </div>
+  );
 };
