@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Form, Input, Button, Typography } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined, HomeOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import api from '../../../config/api'; // Central api.js ko import kiya (path verify kar lein)
+import api from '../config/api';
 
 const { Title, Text } = Typography;
 
