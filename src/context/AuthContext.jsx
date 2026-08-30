@@ -1,5 +1,5 @@
-import axios from 'axios';
 import { createContext, useContext, useState, useEffect } from 'react';
+import api from './api'; // Central api.js ko import kiya (path verify kar lein)
 
 const Auth = createContext();
 
@@ -10,30 +10,27 @@ const AuthContext = ({ children }) => {
   const [isAppLoading, setIsAppLoading] = useState(true);
 
   const readProfile = (token) => {
-    const jwt = token || localStorage.getItem("jwt");
+    // Key ko 'token' par sync kar diya taaki api.js aur localstorage me contradiction na ho
+    const jwt = token || localStorage.getItem("token");
     if (!jwt) {
       setState(initialState);
       return setIsAppLoading(false);
     }
 
-    // Dynamic clean URL generator (prevents duplicate /api issues)
-    const rawBaseUrl = import.meta.env.VITE_BACKEND_URL || window.API || window.api || 'http://localhost:8000';
-    const cleanBaseUrl = rawBaseUrl.replace(/\/api\/?$/, "");
-    const endpoint = `${cleanBaseUrl}/api/auth/user`;
-
-    axios.get(endpoint, { headers: { Authorization: `Bearer ${jwt}` } })
+    // Direct central api instance use ho raha hai (/auth/user endpoint par)
+    api.get('/auth/user')
       .then((res) => {
         const { status, data } = res;
         if (status === 200) {
           setState({ isAuth: true, user: data.user });
         } else {
-          localStorage.removeItem("jwt");
+          localStorage.removeItem("token");
           setState(initialState);
         }
       })
       .catch((err) => {
         console.error("Auth profile fetch error:", err);
-        localStorage.removeItem("jwt");
+        localStorage.removeItem("token");
         setState(initialState);
       })
       .finally(() => setIsAppLoading(false));
@@ -45,7 +42,7 @@ const AuthContext = ({ children }) => {
 
   const handleLogout = () => {
     setState(initialState);
-    localStorage.removeItem("jwt");
+    localStorage.removeItem("token");
     if (window.toastify) {
       window.toastify("User logged out successfully", "success");
     }

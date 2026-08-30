@@ -1,8 +1,10 @@
 import axios from 'axios';
 
-// Base Axios instance for Backend API calls
+// Environment variable se Backend URL uthayega
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000/api';
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000/api',
+  baseURL: BACKEND_URL,
   headers: {
     'Content-Type': 'application/json',
   },
