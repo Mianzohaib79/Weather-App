@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import api from './api'; // Central api.js ko import kiya (path verify kar lein)
+import api from '../config/api';
 
 const Auth = createContext();
 
