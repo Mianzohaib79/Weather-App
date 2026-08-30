@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Form, Input, Button, Typography } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined, HomeOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../../config/api'; // Central api.js ko import kiya (path verify kar lein)
 
 const { Title, Text } = Typography;
 
@@ -29,15 +29,11 @@ const Register = () => {
 
     setIsLoading(true);
 
-    // Dynamic clean URL generator (prevents duplicate /api issues)
-    const rawBaseUrl = window.API || window.api || "http://localhost:8000";
-    const cleanBaseUrl = rawBaseUrl.replace(/\/api\/?$/, "");
-    const endpoint = `${cleanBaseUrl}/api/auth/register`;
-
-    axios.post(endpoint, formData)
+    // Direct central API instance hit hoga (/auth/register endpoint par)
+    api.post('/auth/register', formData)
       .then((res) => {
         const { status, data } = res;
-        if (status === 201) {
+        if (status === 201 || status === 200) {
           window.toastify(data.message || "User created successfully", "success");
           navigate("/auth/login");
         } else {

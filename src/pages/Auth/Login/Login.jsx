@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Form, Input, Button, Typography } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../../config/api'; // Central api.js import kiya (path verify kar lein)
 import { useAuth } from '../../../context/AuthContext';
 
 const { Title, Text } = Typography;
@@ -28,18 +28,17 @@ const Login = () => {
     const formData = { email, password };
     setIsLoading(true);
 
-    // Dynamic clean URL generator (prevents duplicate /api issues)
-    const rawBaseUrl = window.API || window.api || "http://localhost:8000";
-    const cleanBaseUrl = rawBaseUrl.replace(/\/api\/?$/, "");
-    const endpoint = `${cleanBaseUrl}/api/auth/login`;
-
-    axios.post(endpoint, formData)
+    // Direct central API instance hit hoga (/auth/login endpoint par)
+    api.post('/auth/login', formData)
       .then((res) => {
         const { status, data } = res;
         if (status === 200) {
           window.toastify(data.message || "Login successful", "success");
-          localStorage.setItem("jwt", data.token);
+
+          // Token key sync kar di
+          localStorage.setItem("token", data.token);
           if (readProfile) readProfile(data.token);
+
           setState(initialState);
           navigate("/");
         } else {
