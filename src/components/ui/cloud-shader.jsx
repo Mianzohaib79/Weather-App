@@ -291,12 +291,20 @@ export const CloudShader = ({
   }, [skyTopColor, skyBottomColor, cloudColor, speed, count]);
 
   // CloudShader return JSX
+  // CloudShader return block ko is tarah wrap karein:
   return (
-    <div className={cn("fixed inset-0 h-full w-full overflow-hidden pointer-events-none z-0 transform-gpu", className)}>
+    <div
+      className="fixed inset-0 w-screen h-screen overflow-hidden pointer-events-none z-0"
+      style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', webkitTransform: 'translate3d(0,0,0)' }}
+    >
       <canvas
         ref={canvasRef}
-        className="pointer-events-none absolute inset-0 h-full w-full transform-gpu"
-        style={{ transform: 'translateZ(0)', willChange: 'transform' }}
+        className="pointer-events-none absolute inset-0 w-full h-full"
+        style={{
+          transform: 'translateZ(0)',
+          WebkitTransform: 'translateZ(0)',
+          willChange: 'transform'
+        }}
       />
       {children}
     </div>

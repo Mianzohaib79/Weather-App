@@ -33,6 +33,7 @@ const Home = () => {
   const icon = weatherData?.weather?.[0]?.icon || '';
   const currentHour = new Date().getHours();
   const isNight = icon ? icon.endsWith('n') : (currentHour >= 19 || currentHour < 6);
+
   return (
     <div className="relative min-h-screen w-full overflow-hidden text-white">
 
@@ -69,7 +70,7 @@ const Home = () => {
                 <button
                   onClick={refreshWeatherData}
                   disabled={loading}
-                  className="px-3.5 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-100 border border-slate-700 text-xs font-semibold shadow-md transition-all flex items-center gap-1.5 cursor-pointer backdrop-blur-md"
+                  className="px-3.5 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-100 border border-slate-700 text-xs font-semibold shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
                   title="Auto-refreshes every 3 mins"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 text-cyan-400 ${loading ? 'animate-spin' : ''}`} />
@@ -85,7 +86,7 @@ const Home = () => {
                     <button
                       key={city}
                       onClick={() => fetchWeather(city)}
-                      className="px-3 py-1.5 rounded-lg bg-slate-900/70 hover:bg-slate-800 border border-slate-700/80 text-xs text-slate-200 hover:text-cyan-400 transition-all cursor-pointer shadow-sm backdrop-blur-md shrink-0"
+                      className="px-3 py-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 text-xs text-slate-200 hover:text-cyan-400 transition-all cursor-pointer shadow-sm shrink-0"
                     >
                       {city}
                     </button>
@@ -157,6 +158,7 @@ const Home = () => {
             </>
           )}
 
+          {/* 3D Interactive Globe Section */}
           <motion.section
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -170,10 +172,10 @@ const Home = () => {
               </h3>
             </div>
 
-            {/* Pointer events aur contains-paint isolation */}
+            {/* Pointer events and WebGL GPU isolation for iOS */}
             <div
-              className="w-full h-[500px] rounded-3xl overflow-hidden bg-slate-900/50 border border-slate-800 backdrop-blur-md relative transform-gpu"
-              style={{ contain: 'strict', transform: 'translateZ(0)' }}
+              className="w-full h-[500px] rounded-3xl overflow-hidden bg-slate-900/90 border border-slate-800 relative transform-gpu"
+              style={{ contain: 'paint', transform: 'translateZ(0)' }}
             >
               <GlobeDemo />
             </div>
@@ -209,7 +211,7 @@ const Home = () => {
                   return (
                     <div
                       key={index}
-                      className="p-4 rounded-2xl bg-slate-900/60 backdrop-blur-md border border-slate-800/80 text-center hover:border-cyan-500/40 transition-all group shadow-md"
+                      className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800/80 text-center hover:border-cyan-500/40 transition-all group shadow-md"
                     >
                       <p className="text-xs font-bold text-slate-300 group-hover:text-cyan-400 transition-colors">
                         {dayName}
