@@ -7,11 +7,11 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
         <div className="flex items-center gap-2">
           <CloudSun className="w-4 h-4 text-cyan-400" />
-          <span>SkyPulse Animated Weather App &copy; {new Date().getFullYear()}</span>
+          <span>SkyPulse Weather App &copy; {new Date().getFullYear()}</span>
         </div>
-        <div className="flex items-center gap-1.5">
+        {/* <div className="flex items-center gap-1.5">
           <span>Powered by React, Express, MongoDB & OpenWeather API</span>
-        </div>
+        </div> */}
       </div>
     </footer>
   );
