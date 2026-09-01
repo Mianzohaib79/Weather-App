@@ -1,13 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Color, Scene, Fog, PerspectiveCamera, Vector3 } from "three";
+import { Color, Scene, Fog, Vector3 } from "three";
 import ThreeGlobe from "three-globe";
 import { useThree, Canvas, extend } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 
 extend({ ThreeGlobe: ThreeGlobe });
-
-const cameraZ = 300;
 
 export function Globe({ globeConfig = {}, data = [] }) {
     const globeRef = useRef(null);
@@ -183,9 +181,32 @@ export function World(props) {
     const scene = new Scene();
     scene.fog = new Fog(0x020617, 400, 2000);
 
+    // Responsive Camera Distance for mobile fit
+    const [cameraZ, setCameraZ] = useState(300);
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 640) {
+                setCameraZ(420); // Mobile: move camera back to prevent edge clipping
+            } else if (window.innerWidth < 1024) {
+                setCameraZ(350);
+            } else {
+                setCameraZ(300); // Desktop: default view
+            }
+        };
+
+        handleResize();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
     return (
-        <div className="w-full h-full relative min-h-[400px]">
-            <Canvas scene={scene} camera={{ fov: 50, near: 180, far: 1800, position: [0, 0, cameraZ] }}>
+        <div className="w-full h-full relative min-h-[300px] sm:min-h-[400px] aspect-square sm:aspect-auto flex items-center justify-center overflow-hidden">
+            <Canvas
+                scene={scene}
+                camera={{ fov: 50, near: 180, far: 1800, position: [0, 0, cameraZ] }}
+                style={{ width: '100%', height: '100%' }}
+            >
                 <WebGLRendererConfig />
                 <ambientLight color={globeConfig.ambientLight || "#38bdf8"} intensity={1.2} />
                 <directionalLight

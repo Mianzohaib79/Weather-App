@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CloudSun, Search, Heart, User, LogOut, LayoutDashboard, Navigation } from 'lucide-react';
+import { CloudSun, Search, Heart, User, LogOut, LayoutDashboard, Navigation, Menu, X } from 'lucide-react';
 import { useWeather } from '../../context/WeatherContext';
 import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
   const [searchInput, setSearchInput] = useState('');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { fetchWeather, getUserLocationWeather, isGeoLoading } = useWeather();
   const { isAuth, user, handleLogout: authLogout, logout } = useAuth();
   const navigate = useNavigate();
@@ -40,6 +41,7 @@ const Navbar = () => {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
 
+      setIsMenuOpen(false);
       // Instantly navigate user to /auth/login replacing current history
       navigate('/auth/login', { replace: true });
     } catch (error) {
@@ -50,17 +52,30 @@ const Navbar = () => {
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md bg-transparent border-b border-white/10 px-4 lg:px-8 py-3.5 transition-all">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-        {/* Brand Logo */}
-        <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="p-2 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform">
-            <CloudSun className="w-6 h-6 animate-pulse" />
-          </div>
-          <div>
-            <span className="text-xl font-bold bg-gradient-to-r from-white via-slate-100 to-cyan-400 bg-clip-text text-transparent">
-              SkyPulse
-            </span>
-          </div>
-        </Link>
+
+        {/* Top Header Row for Mobile & Desktop */}
+        <div className="flex items-center justify-between w-full md:w-auto">
+          {/* Brand Logo */}
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <div className="p-2 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform">
+              <CloudSun className="w-6 h-6 animate-pulse" />
+            </div>
+            <div>
+              <span className="text-xl font-bold bg-gradient-to-r from-white via-slate-100 to-cyan-400 bg-clip-text text-transparent">
+                SkyPulse
+              </span>
+            </div>
+          </Link>
+
+          {/* Mobile Hamburger Toggle Button */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="md:hidden p-2 rounded-lg bg-slate-900/40 text-slate-300 hover:text-white border border-slate-700/50 backdrop-blur-sm transition-colors cursor-pointer"
+            aria-label="Toggle menu"
+          >
+            {isMenuOpen ? <X className="w-6 h-6 text-cyan-400" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
 
         {/* Live Search Input & GPS Geolocation Button */}
         <div className="flex items-center gap-2 w-full md:w-auto">
@@ -86,14 +101,14 @@ const Navbar = () => {
           </button>
         </div>
 
-        {/* Navigation Links & User Controls */}
-        <nav className="flex items-center gap-3">
+        {/* Desktop Navigation Links */}
+        <nav className="hidden md:flex items-center gap-3">
           <Link
             to="/favorites"
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
           >
             <Heart className="w-4 h-4 text-rose-400" />
-            <span className="hidden sm:inline">Favorites</span>
+            <span>Favorites</span>
           </Link>
 
           {isAuthenticated ? (
@@ -103,14 +118,14 @@ const Navbar = () => {
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
               >
                 <LayoutDashboard className="w-4 h-4 text-cyan-400" />
-                <span className="hidden sm:inline">Dashboard</span>
+                <span>Dashboard</span>
               </Link>
               <button
                 onClick={handleLogoutClick}
                 className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 transition-all cursor-pointer backdrop-blur-sm"
               >
                 <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Logout</span>
+                <span>Logout</span>
               </button>
             </>
           ) : (
@@ -124,6 +139,49 @@ const Navbar = () => {
           )}
         </nav>
       </div>
+
+      {/* Mobile Menu Drawer */}
+      {isMenuOpen && (
+        <div className="md:hidden mt-3 pt-3 border-t border-white/10 flex flex-col gap-2 bg-slate-950/80 backdrop-blur-md p-4 rounded-xl border border-slate-800 shadow-xl">
+          <Link
+            to="/favorites"
+            onClick={() => setIsMenuOpen(false)}
+            className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-200 hover:bg-white/10 transition-colors"
+          >
+            <Heart className="w-4 h-4 text-rose-400" />
+            <span>Favorites</span>
+          </Link>
+
+          {isAuthenticated ? (
+            <>
+              <Link
+                to="/dashboard"
+                onClick={() => setIsMenuOpen(false)}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-200 hover:bg-white/10 transition-colors"
+              >
+                <LayoutDashboard className="w-4 h-4 text-cyan-400" />
+                <span>Dashboard</span>
+              </Link>
+              <button
+                onClick={handleLogoutClick}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 transition-all text-left w-full cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Logout</span>
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/auth/login"
+              onClick={() => setIsMenuOpen(false)}
+              className="flex items-center gap-2.5 px-4 py-2 rounded-lg text-sm font-medium bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md transition-all justify-center"
+            >
+              <User className="w-4 h-4" />
+              <span>Login</span>
+            </Link>
+          )}
+        </div>
+      )}
     </header>
   );
 };

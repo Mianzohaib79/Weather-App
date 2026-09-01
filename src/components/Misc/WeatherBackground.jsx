@@ -11,7 +11,7 @@ const WeatherBackground = () => {
     return null;
   }
 
-  const { weatherCondition, weatherData } = useWeather() || {};
+  const { weatherCondition, weatherData, loading } = useWeather() || {};
 
   const condition = useMemo(() => {
     return (weatherCondition || weatherData?.weather?.[0]?.main || 'Clear').toLowerCase();
@@ -30,6 +30,13 @@ const WeatherBackground = () => {
   const isSnow = condition.includes('snow');
   const isMist = condition.includes('mist') || condition.includes('fog') || condition.includes('haze') || condition.includes('smoke');
   const isClouds = (condition.includes('cloud') || condition.includes('overcast')) && !isRain && !isThunder && !isSnow && !isMist;
+
+  // NEUTRAL LOADING STATE (Prevents Day Flash / Flicker during Refresh)
+  if (loading || !weatherData) {
+    return (
+      <div className="fixed inset-0 w-full h-full pointer-events-none -z-10 overflow-hidden bg-slate-950 transition-opacity duration-500" />
+    );
+  }
 
   return (
     <div className="fixed inset-0 w-full h-full pointer-events-none -z-10 overflow-hidden select-none transition-all duration-1000">

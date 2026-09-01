@@ -148,6 +148,7 @@ void main() {
 `;
 
 function parseHex(color) {
+  if (!color) return [0.02, 0.05, 0.12]; // Dark default fallback
   const value = color.trim();
   if (value.startsWith("#")) {
     const hex = value.slice(1);
@@ -168,7 +169,7 @@ function parseHex(color) {
   if (rgb && rgb.length >= 3) {
     return [Number(rgb[0]) / 255, Number(rgb[1]) / 255, Number(rgb[2]) / 255];
   }
-  return [0.95, 0.95, 0.95];
+  return [0.02, 0.05, 0.12];
 }
 
 function compile(gl, type, source) {
@@ -188,9 +189,9 @@ export const CloudShader = ({
   children,
   speed = 1,
   count = 6,
-  cloudColor = "#ffffff",
-  skyTopColor = "#3a88e9",
-  skyBottomColor = "#7ab4f8",
+  cloudColor = "#1e293b",
+  skyTopColor = "#020617",
+  skyBottomColor = "#0f172a",
 }) => {
   const canvasRef = useRef(null);
 
@@ -289,14 +290,15 @@ export const CloudShader = ({
     };
   }, [skyTopColor, skyBottomColor, cloudColor, speed, count]);
 
+  // CloudShader return JSX
   return (
-    <div className={cn("relative h-full min-h-80 w-full overflow-hidden", className)}>
-      <canvas ref={canvasRef} className="pointer-events-none absolute inset-0 h-full w-full" />
-      {children ? (
-        <div className="relative z-10 flex h-full w-full items-center justify-center">
-          {children}
-        </div>
-      ) : null}
+    <div className={cn("fixed inset-0 h-full w-full overflow-hidden pointer-events-none z-0 transform-gpu", className)}>
+      <canvas
+        ref={canvasRef}
+        className="pointer-events-none absolute inset-0 h-full w-full transform-gpu"
+        style={{ transform: 'translateZ(0)', willChange: 'transform' }}
+      />
+      {children}
     </div>
   );
 };

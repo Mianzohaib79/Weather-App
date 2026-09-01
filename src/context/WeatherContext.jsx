@@ -17,7 +17,7 @@ export const WeatherProvider = ({ children }) => {
   const [currentCity, setCurrentCity] = useState('Faisalabad');
   const [weatherData, setWeatherData] = useState(null);
   const [forecastData, setForecastData] = useState(null);
-  const [weatherCondition, setWeatherCondition] = useState('Clouds');
+  const [weatherCondition, setWeatherCondition] = useState(null); // Set to null initially to avoid day-flicker
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isGeoLoading, setIsGeoLoading] = useState(false);
@@ -39,7 +39,6 @@ export const WeatherProvider = ({ children }) => {
   const fetchWeather = async (city) => {
     let targetCity = city && city.trim() ? city.trim() : DEFAULT_CITY;
 
-    // Ensure Faisalabad targets PK specifically if no country code provided
     if (targetCity.toLowerCase() === 'faisalabad') {
       targetCity = 'Faisalabad,PK';
     }
@@ -146,7 +145,7 @@ export const WeatherProvider = ({ children }) => {
         currentCity,
         weatherData,
         forecastData,
-        weatherCondition,
+        weatherCondition: weatherCondition || 'Clouds',
         loading,
         error,
         isGeoLoading,
