@@ -51,9 +51,9 @@ const Home = () => {
             transition={{ duration: 0.5 }}
             className="text-center space-y-4"
           >
-            <h3 className={`text-4xl md:text-5xl font-black tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)] transition-colors ${isNight ? 'text-white' : 'text-slate-100'}`}>
+            <h4 className={`text-4xl md:text-5xl font-black tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)] transition-colors ${isNight ? 'text-white' : 'text-slate-100'}`}>
               Live <span className={isNight ? 'text-cyan-400' : 'text-sky-400 font-extrabold'}>Location & Animated</span> Weather
-            </h3>
+            </h4>
 
             {/* Location Controls & Quick Cities */}
             <div className="flex flex-col items-center gap-3 pt-2">
