@@ -5,7 +5,7 @@ const FavoriteContext = createContext();
 
 // Helper: Extract User ID from JWT Token
 const getUserIdFromToken = () => {
-    const token = localStorage.getItem("jwt");
+    const token = localStorage.getItem("token") || localStorage.getItem("jwt");
     if (!token) return null;
 
     try {

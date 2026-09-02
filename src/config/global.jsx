@@ -1,6 +1,6 @@
 import { message } from "antd";
 
-window.toastify = (msg, type) => message[type](msg);
+window.toastify = (msg, type) => (message[type] || message.info)(msg);
 
 window.getRandomId = () => Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
 
